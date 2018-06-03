@@ -1,6 +1,6 @@
-
 function myFunction() {
 
+   //http call for Luno and JSON parse
  var url="https://api.mybitx.com/api/1/ticker?pair=XBTZAR";
  var response=UrlFetchApp.fetch(url);
   var json=response.getContentText();
@@ -8,7 +8,8 @@ function myFunction() {
 
 
 
-
+  //getting the number of the last row
+  //and placing it in an integer variable
 
   var lastRow = SpreadsheetApp.getActiveSheet().getLastRow();
   var nextRow = lastRow + 1;
@@ -20,6 +21,12 @@ function myFunction() {
   var cellG = "G"+ nextRow;
   var cellH = "H"+ nextRow;
   var cellI = "I"+ nextRow;
+
+ //Cell J is used for the exchange rate
+ //this API is called at different intervals
+ //so is on a seperate script
+
+  //cells for Bitfinex
   var cellK = "K"+ nextRow;
 
   var cellL = "L"+ nextRow;
@@ -35,6 +42,7 @@ function myFunction() {
 
 
 
+
   var now = new Date();
   var currentTime = now.toLocaleTimeString();
   var currentDate = now;
@@ -44,11 +52,22 @@ function myFunction() {
   .getRange(cellI)
   .setValue(currentDate);
 
+  //Arbitrage Display
+   SpreadsheetApp
+  .getActiveSheet()
+  .getRange('L1')
+  .setValue(currentDate);
+
   SpreadsheetApp
   .getActiveSheet()
   .getRange(cellB)
   .setValue(currentTime);
 
+  //Arbitrage Display
+    SpreadsheetApp
+  .getActiveSheet()
+  .getRange('L2')
+  .setValue(currentTime);
 
   //Luno last trade
  SpreadsheetApp
@@ -57,6 +76,12 @@ function myFunction() {
   .setValue(data.last_trade);
 
     //Luno last trade
+ SpreadsheetApp
+  .getActiveSheet()
+  .getRange('C4')
+  .setValue(data.last_trade);
+
+     //Luno last trade
  SpreadsheetApp
   .getActiveSheet()
   .getRange('C2')
@@ -117,7 +142,13 @@ function myFunction() {
     //last trade
  SpreadsheetApp
   .getActiveSheet()
-  .getRange('K2')
+  .getRange('K4')
+  .setValue(dataBitF.last_price);
+
+     //last trade
+ SpreadsheetApp
+  .getActiveSheet()
+  .getRange('D2')
   .setValue(dataBitF.last_price);
 
   //timestamp
@@ -143,28 +174,52 @@ function myFunction() {
   .getActiveSheet()
   .getRange(cellO)
   .setValue(dataBitF.volume);
+
+   /* API from Fixer.io calling for USD to Rand canversion
+
+
+  https://data.fixer.io/api/convert?access_key=[insert you own hey here]&from=USD&to=ZAR&amount=1
+  responds:
+  {"success":true,"query":{"from":"USD","to":"ZAR","amount":1},"info":{"timestamp":1527512649,"rate":12.451198},"date":"2018-05-28","result":12.451198}
+
+  */
+
+  //API key for fixer.io for rand dollar conversion
+
+ var urlRandDol="https://data.fixer.io/api/convert?access_key=[insert you own key here]from=USD&to=ZAR&amount=1";
+ var responseRandDol=UrlFetchApp.fetch(urlRandDol);
+ var jsonRandDol=responseRandDol.getContentText();
+ var dataRandDol=JSON.parse(jsonRandDol);
+
+   //var jsonRandDol2=dataRandDol.getContentText();
+// var dataRandDolParse2=JSON.parse(dataRandDol);
+  Logger.log(dataRandDol);
+  //[18-05-29 15:17:03:911 SAST] {date=2018-05-29, result=12.597603, success=true, query={amount=1, from=USD, to=ZAR}, info={rate=12.597603, timestamp=1527598450}}
+
+
+  //getting the number of the last row
+  //and placing it in an integer variable
+  var lastRow = SpreadsheetApp.getActiveSheet().getLastRow();
+  var nextRow = lastRow;
+
+  //cell for exchange rate
+  var cellJ = "J" + nextRow;
+
+  //Exchange rate display
+
+ SpreadsheetApp
+  .getActiveSheet()
+  .getRange('J4')
+  .setValue(dataRandDol.result);
+
+
+   SpreadsheetApp
+  .getActiveSheet()
+  .getRange('E2')
+  .setValue(dataRandDol.result);
+
+  SpreadsheetApp
+  .getActiveSheet()
+  .getRange(cellJ)
+  .setValue(dataRandDol.result);
 }
-
-/*"pair":"XBTZAR","timestamp":1526507382674,"bid":"108373.00","ask":"108374.00","last_trade":"108373.00","rolling_24_hour_volume":"472.792099"*/
-
-/* function createTimeDrivenTriggers() {
-  // Trigger every 1 min
-  ScriptApp.newTrigger('myFunction')
-      .timeBased()
-      .everyHours()
-  .everyMinutes(1)
-      .create();
-}
-
-/* https://developers.google.com/apps-script/guides/triggers/installable
-
-function createTimeDrivenTriggers() {
-  // Trigger every 1 min
-  ScriptApp.newTrigger('myFunction')
-      .timeBased()
-      .everyHours()
-  .everyMinutes(1)
-      .create();
-}
-
-*/
